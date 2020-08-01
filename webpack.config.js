@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 var PrettierPlugin = require("prettier-webpack-plugin");
 
 module.exports = {
+  mode: "development",
   entry: [
     './src/js/index.js'
   ],
@@ -11,6 +12,7 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'public')
   },
+  
   module: {
     rules: [
         {
@@ -36,6 +38,7 @@ module.exports = {
         { test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/, use: ['file-loader'] } //for fonts
     ]
   },
+  
   resolve: {
     extensions: ['*', '.js']
   },
@@ -73,3 +76,4 @@ module.exports = {
     })
   ]
 };
+
