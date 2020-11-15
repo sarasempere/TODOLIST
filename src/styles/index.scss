@@ -1,4 +1,5 @@
 @import "~bootstrap/scss/bootstrap";
+
 body {
   background: #F2F4F4;
 }
@@ -10,19 +11,7 @@ body {
     font-weight: 300;
     color: #D1C7DB;
 }
-.userNameChanger {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 13px;
-}
-.userNameLabel {
-  margin-right: 7px;
-}
-.userNameLabel h3 {
-  font-size: 20px;
-  color: #D1C7DB;
-  font-weight: 600;
-}
+
 .container {
   width: 520px;
   margin: 0 auto;
