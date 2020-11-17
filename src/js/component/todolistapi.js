@@ -1,28 +1,12 @@
-import React from "react";
-//TODOLIST CON API
-//import Item from "./item.js";
-
-export class Todolist extends React.Component {
-	constructor() {
-		super();
-		this.state = {
-			tareas: [
-				{
-					label: "Hacer la cama",
-					done: false
-				}
-			],
-			item: ""
-		};
-
-		this.tareas = [];
-
-		this.itemChange = this.itemChange.bind(this);
-		this.addItem = this.addItem.bind(this);
-		this.removeItem = this.removeItem.bind(this);
-	}
-
-	componentDidMount() {
+import React, { useState, useEffect } from "react";
+const Todolist = () => {
+	const [toDos, setToDos] = useState([]);
+	const [input, setInput] = useState();
+	//the following useEffect hook will run only once
+	useEffect(() => {
+		initTodos();
+	}, []);
+	const initTodos = () => {
 		fetch("https://assets.breatheco.de/apis/fake/todos/user/ssm", {
 			method: "GET",
 			headers: {
@@ -30,130 +14,90 @@ export class Todolist extends React.Component {
 			}
 		})
 			.then(resp => {
-				console.log(resp.ok); // will be true if the response is successfull
-				console.log(resp.status); // the status code = 200 or code = 400 etc.
-				//console.log(resp.text()); // will try return the exact result as string
 				return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
 			})
 			.then(data => {
+				setToDos(data);
 				//here is were your code should start after the fetch finishes
 				console.log(data); //this will print on the console the exact object received from the server
-				//this.setState({ tareas: data });
-				this.tareas = data;
 			})
 			.catch(error => {
 				//error handling
 				console.log(error);
 			});
-	}
-
-	itemChange(e) {
-		let valor = e.target.value;
-		this.setState({
-			item: { label: valor, done: false }
-		});
-	}
-
-	/*itemChange(e) {
-		let valor = e.target.value;
-		let newTarea = { label: valor, done: false };
-	}*/
-
-	limpiar() {
-		document.querySelector(".entryTxt").value = "";
-	}
-
-	addItem() {
-		const urlApi = "https://assets.breatheco.de/apis/fake/todos/user/ssm";
-		const tareas = this.setState(prevState => ({
-			tareas: [...prevState.tareas, this.state.item]
-		}));
-
-		/*let newTarea = {
-			label: document.querySelector("#label").value,
-			done: false
-		};
-		const tareas = this.tareas.push(newTarea);*/
-
-		const opts = {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(tareas)
-		};
-		fetch(urlApi, opts)
-			.then(resp => {
-				console.log(resp.ok); // will be true if the response is successfull
-			})
-			.then(data => {
-				alert(data);
-				console.log(data);
-			})
-			.catch(error => {
-				console.log(error);
-			});
-		this.limpiar();
-	}
-
-	removeItem(id) {
-		const urlApi = "https://assets.breatheco.de/apis/fake/todos/user/ssm";
-		const tareas = this.setState({
-			tareas: this.state.tareas.filter((tarea, index) => {
-				return index != id;
-			})
-		});
-
-		const opts = {
-			method: "PUT",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(tareas)
-		};
-		fetch(urlApi, opts)
-			.then(resp => {
-				console.log(resp.ok); // will be true if the response is successfull
-			})
-			.then(data => {
-				alert(data);
-				console.log(data);
-			})
-			.catch(error => {
-				console.log(error);
-			});
-	}
-
-	render() {
-		let newtar = this.tareas.map((tarea, index) => {
-			return (
-				<li key={index}>
-					<div>
-						<label>{tarea.label}</label>
-						<button
-							className="destroy"
-							value="destroy"
-							onClick={() => this.removeItem({ index })}
-						/>
-					</div>
-				</li>
-			);
-		});
-		return (
-			<div>
-				<input
-					className="entryTxt"
-					id="label"
-					name="label"
-					type="text"
-					//onChange={e => this.itemChange(e)}
-				/>
-				<button onClick={this.addItem}>Add</button>
-
-				<div>
-					<ul>{newtar}</ul>
-				</div>
-			</div>
+		//using the fetch() api, write code to fetch data from API, upon resolved Promise, initialize toDos (state)
+		//by using it's setter function (setToDos) -- see line 4
+		//delete the following 2 lines - this is just to get you started with an initial value of items;
+		// const defaultList = ["Walk the dog"];
+		// setToDos(defaultList);
+	};
+	// addTask method is 1/2 way there - you need to hook it up with the API, so the values that are being changed (locally) also get updated (remotely)
+	// you'll also need to write code to delete items from the list and update the tasks on the API
+	//Following will add tasks to toDos by updating it's state value
+	const addTask = e => {
+		if (e.keyCode === 13) {
+			const task = e.target.value.trim();
+			const newList = [...toDos, { label: task, done: false }];
+			console.log(newList);
+			e.target.value = ""; //this is re-setting the value of the input text
+			fetch("https://assets.breatheco.de/apis/fake/todos/user/ssm", {
+				method: "PUT",
+				body: JSON.stringify(newList),
+				headers: {
+					"Content-Type": "application/json"
+				}
+			}).then(() => initTodos());
+		}
+	};
+	const deleteTask = i => {
+		const filteredToDos = toDos.filter(
+			(arrayElement, arrayIndex) => i !== arrayIndex
 		);
-	}
-}
+		fetch("https://assets.breatheco.de/apis/fake/todos/user/ssm", {
+			method: "PUT",
+			body: JSON.stringify(filteredToDos),
+			headers: {
+				"Content-Type": "application/json"
+			}
+		}).then(() => initTodos());
+	};
+	//component still needs a way to remove the items
+	//make it work!
+	return (
+		<div className="container flex">
+			<div className="head flex">
+				<h1>to dos</h1>
+			</div>
+			<div className="body">
+				<input
+					className="flex"
+					type="text"
+					placeholder="Add a task"
+					name="task"
+					onKeyDown={addTask}
+					onChange={e => setInput(e.target.value)}
+				/>
+				<ul>
+					{toDos.map((arrayElement, arrayIndex) => {
+						return (
+							<li key={arrayIndex} className="flex">
+								{arrayElement.label}
+								<i
+									className="far fa-trash-alt"
+									onClick={() => deleteTask(arrayIndex)}
+								/>
+							</li>
+						);
+					})}
+				</ul>
+				<p>{toDos.length} items left</p>
+			</div>
+			<div className="footer flex">
+				<div className="blank-bottom1 flex" />
+				<div className="blank-bottom2 flex" />
+				<div className="blank-bottom3 flex" />
+			</div>
+		</div>
+	);
+};
+export { Todolist as default };
